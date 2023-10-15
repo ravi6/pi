@@ -15,7 +15,7 @@ float MCP3424_AtoD(uint8_t ch) {
 //      This code won't cover higher resoltions 
 //       So we have one two bytes of converted data and one byte of config
 
-  uint8_t buf[2];  // buffer to send or receive data on bus
+  uint8_t buf[3];  // buffer to send or receive data on bus
   float volts ;
                             
   // Start Conversion
@@ -29,7 +29,7 @@ float MCP3424_AtoD(uint8_t ch) {
   printf("***************\n");
 
  
-  // wait for conversion complete (bit 15 high)
+  // wait for conversion complete (MSBit of Config to go low)
   // first two bytes are data and third byte is config
   // when you send read request command
   // So we need to monitor the RDY bit of the third byte
@@ -48,7 +48,7 @@ float MCP3424_AtoD(uint8_t ch) {
        byte2bin(buf[0]), byte2bin(buf[1]), 
        byte2bin(buf[2])  ) ; 
       j = j + 1 ;
-      if (j > 1000) {
+      if (j > 10) {
            printf("Data Ready Flag Failed to Clear \n") ;
            break ;
       }
@@ -59,9 +59,11 @@ float MCP3424_AtoD(uint8_t ch) {
   
   // write conversion register pointer first
   printf("Data loading  \n") ;
+/*
   buf[0] = MCP3424_READ_REG;   
   I2C_Write(&buf[0], 1) ;
   I2C_Read(&buf[0], 3) ;  // read conveted value bytes
+*/
   volts = inferData(buf) ;
   return (volts);
 } // end AtoD

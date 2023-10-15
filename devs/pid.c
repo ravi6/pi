@@ -66,9 +66,10 @@ int main() {
 // Test AtoD 
      I2C_Open() ;  // open the bus
      I2C_setSlave(MCP3424_I2C_ADD) ;  // Talkto A2D
-     float vin  = MCP3424_AtoD(0) ; // read from ch0
+     printf("Using Device Add %x \n", MCP3424_I2C_ADD);
+     float vin  = MCP3424_AtoD(2) ; // read from ch0
      printf("Read Channel 0\n") ;
-     printf("Voltage Read (ch0)  %6.3f \n", vin) ;
+     printf("Voltage Read (ch2)  %6.3f \n", vin) ;
     
 }
 

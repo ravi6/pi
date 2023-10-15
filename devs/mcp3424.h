@@ -11,9 +11,9 @@
 //  and set remaining MSBs to zero
 
 #define MCP3424_DEV_CODE    0x0D  // Device Code bits 1101 (unchangeable)
-#define MCP3424_DEV_ADDR    0x06  // Three bit Device Address (settable)
+#define MCP3424_DEV_ADDR    0x02  // Three bit Device Address (settable)
                                   // maximum 3 bits
-                                  // We chose A2 A1 A0 as (1 1 0)
+                                  // We chose A2 A1 A0 as (0 1 0)
 // for the CoreElectronic supplied chip
 //    dips switches are (On,On) .... that gives device address of 6E
 //      0 1101 110   ---> so in hex mode   0110 1110 -> 6E
