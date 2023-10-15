@@ -64,13 +64,11 @@ int pidLoop() {
 int main() {
 
 // Test AtoD 
-    
      I2C_Open() ;  // open the bus
      I2C_setSlave(MCP3424_I2C_ADD) ;  // Talkto A2D
-     MCP3424_showConfig();
-//     float vin  = MCP3424_AtoD(0) ; // read from ch0
- //    printf("Read Channel 0\n") ;
-  //   printf("Voltage Read (ch0)  %6.2f \n", vin) ;
+     float vin  = MCP3424_AtoD(0) ; // read from ch0
+     printf("Read Channel 0\n") ;
+     printf("Voltage Read (ch0)  %6.3f \n", vin) ;
     
 }
 

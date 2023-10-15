@@ -22,4 +22,4 @@ libdev.a : $(OBJ)
 pid :  pid.c common.h libdev.a
 	gcc pid.c -L. -ldev -lm  -o pid
 clean :
-	rm $(OBJ) libdev.a
+	rm $(OBJ) libdev.a pid
