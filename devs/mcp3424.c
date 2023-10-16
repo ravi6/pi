@@ -89,13 +89,13 @@ float inferData(uint8_t buf[])
 
   // volt per step (or count) 
   // Note resolution changes with dataRate with this chip
-  float VPS = 2.048 / gain[MCP3424_PGA] / pow(2, resBits[MCP3424_DR]-1) ;
+  float VPS = 2.048 * gain[MCP3424_PGA] / pow(2, resBits[MCP3424_DR]-1) ;
 
   printf("%s : %s : %s  :  \n", byte2bin(buf[0]), byte2bin(buf[1]), byte2bin(buf[2])  ) ; 
 //  printf("%x : %x : %x  :  \n", (buf[0]), (buf[1]), (buf[2])  ) ; 
 
-  // Grab least significan 11 bits of [buf0][buf1] bit pattern
-  count = ((buf[0] & 0x07) << 4 ) | buf[1] ; 
+  // Grab least significan 13 bits of [buf0][buf1] bit pattern
+  count = ((buf[0] & 0x1F) << 6 ) | buf[1] ; 
   volts = count * VPS ;
   printf("Count  %x    %d   volts = %6.3f \n ", count, count, volts) ;
   return (volts) ;
