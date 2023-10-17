@@ -96,7 +96,7 @@ float MCP3424_inferData(uint8_t buf[])
 
   // volt per step (or count) 
   // Note resolution changes with dataRate with this chip
-  float VPS = 2.048 * gain[MCP3424_PGA] / pow(2, resBits[MCP3424_DR]-1) ;
+  float VPS = 2.048 / gain[MCP3424_PGA] / pow(2, resBits[MCP3424_DR]-1) ;
 
 // Data comes in with MSB starting at buf[0]
 //  Note: We cover only upto 16bit resolutions here 
@@ -104,12 +104,10 @@ float MCP3424_inferData(uint8_t buf[])
   
   msb = buf[0] & mask[MCP3424_DR] ; 
   lsb = buf[1]  ; 
+  printf("msb lsb %x   %x \n", msb, lsb) ;
   count = (msb << 8) | lsb  ;
 
-  if (buf[1] >> 7 ) 
-     volts =  - count * VPS ;
-  else 
-     volts =  count * VPS ;
+  volts =  count * VPS ;
   printf("Count  %x    %d   volts = %6.3f \n ", count, count, volts) ;
   return (volts) ;
 }
