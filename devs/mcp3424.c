@@ -1,31 +1,43 @@
 // Author: Ravi Saripalli
 //    5th October 2023
 //  Four Channel (single ended) A/D converter
-//  12 bit resolution at 280 SPS data rate
-//  18 bit resolution at 6 SPS data rate
+//  12 bit resolution at 240 SPS data rate
 
 #include "common.h"
 #include "mcp3424.h"
  
+void MCP3424_reset() {
+     uint8_t buf[2];  // buffer to send or receive data on bus
+     buf[0]  = MCP3424_WRITE_REG ;
+     buf[1] = 0x06 ;  // Calls Reset
+     I2C_Write(&buf, 2) ;
+     buf[1] = 0x08 ;  // Calls Latch
+     I2C_Write(&buf, 2) ;
+}
+
 float MCP3424_AtoD(uint8_t ch) {
 
 // Data Rate (Samples per Second) (bit 3:2)
-//  const int sps[4] ={240, 60, 15, 3.75} ;
 //  NOTE:  ***   We use 240 sps and we have 12bit resolution  ***
 //      This code won't cover higher resoltions 
-//       So we have one two bytes of converted data and one byte of config
+//       So we have  two bytes of converted data and one byte of config
+//       that is returned when read
 
   uint8_t buf[3];  // buffer to send or receive data on bus
   float volts ;
-                            
+  const  uint8_t CONFIG_BYTE  \
+        = (MCP3424_OS << 7) | ((ch-1) << 6) | (MCP3424_MODE << 4) \
+           | (MCP3424_DR << 2) | MCP3424_PGA ;   // Config Byte
   // Start Conversion
+
   printf("Start Conversion\n") ;
   buf[0] = MCP3424_WRITE_REG ;     // Write Command byte
-  buf[1] = (MCP3424_OS << 7) | (ch << 6) | (MCP3424_MODE << 4) \
-           | (MCP3424_DR << 3) | MCP3424_PGA ;   // Config Byte
-  inferData(buf) ;
-  I2C_Write(&buf[0], 2) ;  
-  inferData(buf) ;
+  buf[1] = CONFIG_BYTE ; 
+  showBuffer(&buf, 2) ;
+          
+  printf("Configuration sent \n") ;
+  MCP3424_showConfig(CONFIG_BYTE) ;
+  I2C_Write(&buf, 2) ;  
   printf("***************\n");
 
  
@@ -38,45 +50,38 @@ float MCP3424_AtoD(uint8_t ch) {
   do {
      // Send Read Data Command 
      // Config byte also needed to select the channel to read
-      buf[0] = MCP3424_READ_REG;   
-      buf[1] =  (ch << 6) | (MCP3424_MODE << 4) \
-           | (MCP3424_DR << 3) | MCP3424_PGA ;   // Config Byte
+      buf[0] = MCP3424_READ_REG ;   
+      buf[1] = CONFIG_BYTE ; 
+           
       I2C_Write(&buf[0], 2) ;
-
       I2C_Read(&buf[0], 3) ;  // read response
-      printf (" %d  %s : %s : %s     \n",  j, 
-       byte2bin(buf[0]), byte2bin(buf[1]), 
-       byte2bin(buf[2])  ) ; 
+      showBuffer(&buf, 3) ;
       j = j + 1 ;
       if (j > 10) {
            printf("Data Ready Flag Failed to Clear \n") ;
            break ;
       }
-  } while (!((buf[2] & 0x80) == 0) ); 
+  } while (!((buf[2] & 0x80) == 0) ); // Check RDY bit cleared in Config byte
 
-  inferData(buf) ;
-  printf("***************\n");
-  
-  // write conversion register pointer first
-  printf("Data loading  \n") ;
-/*
-  buf[0] = MCP3424_READ_REG;   
-  I2C_Write(&buf[0], 1) ;
-  I2C_Read(&buf[0], 3) ;  // read conveted value bytes
-*/
-  volts = inferData(buf) ;
+  printf("Configuration in Device:\n") ;
+  MCP3424_showConfig(buf[2]) ;
+  printf("Inferring Data Bits\n") ;
+  volts = MCP3424_inferData(buf) ;
+  printf("******END******\n");
   return (volts);
 } // end AtoD
 
-void MCP3424_showConfig() { // see what the device config is
-  uint8_t buf[3];  // buffer to send or receive data on bus
-  buf[0] = MCP3424_READ_REG;   // conversion register is 0
-  I2C_Write(&buf[0], 1) ;
-  I2C_Read(&buf[0], 3) ;  // read conveted value bytes
-  inferData(buf) ;
+void MCP3424_showConfig (uint8_t cfg) { // Human Readable Config
+  const int sps[4] ={240, 60, 15, 3.75} ;
+  const int gain[4] = {1, 2, 4, 8 }; 
+  printf("CFG Byte Pattern: %s\n", byte2bin(cfg)) ;
+  printf("Channel: %d,  ", ((cfg & 0x60) >> 5) + 1) ;
+  printf(" Mode: %s,  ", ((cfg & 0x10) >> 4) ? "Continuous" : "OneShot") ;
+  printf(" Rate (samples/s): %d",  sps[(cfg & 0x0C) >> 2 ]) ;
+  printf(" Gain: %d\n", gain[(cfg & 0x03)]) ;
 }
 
-float inferData(uint8_t buf[]) 
+float MCP3424_inferData(uint8_t buf[]) 
 { // test routine
   uint16_t count ;  // Digital value of converted Analogue input signal
   float volts;    // Analogue input in volts
@@ -91,12 +96,15 @@ float inferData(uint8_t buf[])
   // Note resolution changes with dataRate with this chip
   float VPS = 2.048 * gain[MCP3424_PGA] / pow(2, resBits[MCP3424_DR]-1) ;
 
-  printf("%s : %s : %s  :  \n", byte2bin(buf[0]), byte2bin(buf[1]), byte2bin(buf[2])  ) ; 
-//  printf("%x : %x : %x  :  \n", (buf[0]), (buf[1]), (buf[2])  ) ; 
-
-  // Grab least significan 13 bits of [buf0][buf1] bit pattern
-  count = ((buf[0] & 0x1F) << 6 ) | buf[1] ; 
-  volts = count * VPS ;
+// Data comes in with MSB starting at buf[0]
+//  Note: We cover only upto 16bit resolutions here 
+//  We are removing the sign bit along with excess bits
+  count = ((buf[0] << 8) | buf[1]) \
+          & (0xFFFF >> (16 - resBits[MCP3424_DR] + 1) ) ;
+  if ( (buf[0] & (1 << 7)) ^  0x08 ) 
+     volts =  - count * VPS ;
+  else 
+     volts =  count * VPS ;
   printf("Count  %x    %d   volts = %6.3f \n ", count, count, volts) ;
   return (volts) ;
 }

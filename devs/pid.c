@@ -7,9 +7,6 @@
 #include "mcp3424.h"
 #include "mcp4725.h"
 
-// do they correspond to bit values in DEV_ADD don't know
-const uint8_t  MCP4725_I2C_ADD = 0x19 ; // MCP4725 1ch DtoA
-
 struct PID {
   float mv     ; // Measured Value 
   float op     ; //  Controller Output Value  
@@ -66,13 +63,11 @@ int main() {
 // Test AtoD 
      I2C_Open() ;  // open the bus
      I2C_setSlave(MCP3424_I2C_ADD) ;  // Talkto A2D
+     MCP3424_reset() ;
      printf("Using Device Add %x \n", MCP3424_I2C_ADD);
      printf("Read Channel 0\n") ;
      float vin ;
-     while(1) {
-     vin = MCP3424_AtoD(0) ; // read from ch0
+     vin = MCP3424_AtoD(1) ; // read from ch0
      printf("Voltage Read (ch2)  %6.3f \n", vin) ;
-     }    
     
 }
-

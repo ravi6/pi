@@ -14,3 +14,9 @@ char* byte2bin (uint8_t byte)
    *(cp+10) ='\0' ;
    return (cp) ;
 } // end byte2bin
+
+void showBuffer(uint8_t *buf, int len) {
+  for(int i=0 ; i < len ; i++)
+    printf("%s ", byte2bin(*(buf+i))) ;
+  printf("\n") ;
+}

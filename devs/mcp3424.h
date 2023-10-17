@@ -14,9 +14,13 @@
 #define MCP3424_DEV_ADDR    0x02  // Three bit Device Address (settable)
                                   // maximum 3 bits
                                   // We chose A2 A1 A0 as (0 1 0)
+// On the device we have the Dip Switches are labelled A, B
+//  A --  A1,   B  -- A0  
+//  The A2 bit is determined according to the table 1-1 in MCP3424 Evaluation
+//  board Users guide.
 // for the CoreElectronic supplied chip
-//    dips switches are (On,On) .... that gives device address of 6E
-//      0 1101 110   ---> so in hex mode   0110 1110 -> 6E
+//    dips switches are (On,On) .... that gives device address of 6A
+//      0 1101 010   ---> so in hex mode   0110 1010 -> 6A
 // That is waht exactly you see on the chip
 // The A/D chip we got from CoreElectronics is based on mcp3424.
 //
@@ -34,12 +38,13 @@
 #define MCP3424_I2C_ADD  ( (MCP3424_DEV_CODE << 3) | MCP3424_DEV_ADDR ) 
 
 #define MCP3424_OS          1     // Start Conversion (in continuous  Mode)
-#define MCP3424_MODE        1     // 1 Continuous , 0 One Shot 
+#define MCP3424_MODE        0     // 1 Continuous , 0 One Shot 
 #define MCP3424_PGA         0     // Programmable Gain (gain=1)
-#define MCP3424_DR          1     // 60 SPS (sample rates)
-                                  // 14 bit resolution
+#define MCP3424_DR          0     // 2400 SPS (sample rates)
+                                  // 12 bit resolution
 
 float MCP3424_AtoD(uint8_t ch);   // Single Ended Signals 
-void  MCP3424_showConfig() ;      //  See device configure
-float inferData(uint8_t buf[]) ;
+float MCP3424_inferData(uint8_t buf[]) ;
+void  MCP3424_reset() ;  // Reset after POR 
+void  MCP3424_showConfig (uint8_t cfg) ; // Interpret config Byte
 #endif
