@@ -26,7 +26,7 @@ float MCP3424_AtoD(uint8_t ch) {
   uint8_t buf[3];  // buffer to send or receive data on bus
   float volts ;
   const  uint8_t CONFIG_BYTE  \
-        = (MCP3424_OS << 7) | ((ch-1) << 6) | (MCP3424_MODE << 4) \
+        = (MCP3424_OS << 7) | ((ch-1) << 5) | (MCP3424_MODE << 4) \
            | (MCP3424_DR << 2) | MCP3424_PGA ;   // Config Byte
   // Start Conversion
 
@@ -91,6 +91,8 @@ float MCP3424_inferData(uint8_t buf[])
 
   // Programmable Gain Options (bit 1:0)
   const float gain[4] = {1, 2, 4, 8 }; 
+  const uint8_t mask [3] = {0x07, 0x1F, 0xFF} ;
+  uint8_t msb, lsb ; 
 
   // volt per step (or count) 
   // Note resolution changes with dataRate with this chip
@@ -99,9 +101,12 @@ float MCP3424_inferData(uint8_t buf[])
 // Data comes in with MSB starting at buf[0]
 //  Note: We cover only upto 16bit resolutions here 
 //  We are removing the sign bit along with excess bits
-  count = ((buf[0] << 8) | buf[1]) \
-          & (0xFFFF >> (16 - resBits[MCP3424_DR] + 1) ) ;
-  if ( (buf[0] & (1 << 7)) ^  0x08 ) 
+  
+  msb = buf[0] & mask[MCP3424_DR] ; 
+  lsb = buf[1]  ; 
+  count = (msb << 8) | lsb  ;
+
+  if (buf[1] >> 7 ) 
      volts =  - count * VPS ;
   else 
      volts =  count * VPS ;

@@ -8,7 +8,7 @@ SRC = util.c i2c.c mcp3424.c mcp4725.c
 INC = $(SRC:.c=.h) common.h 
 OBJ = $(SRC:.c=.o)
 
-all:  pid 
+all:  pid libdev.a 
  
 #Implicit Rule to make object files
 %.o : %.c %.h common.h
