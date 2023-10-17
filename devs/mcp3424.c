@@ -8,9 +8,10 @@
  
 void MCP3424_reset() {
      uint8_t buf[2];  // buffer to send or receive data on bus
-     buf[0]  = MCP3424_WRITE_REG ;
+     buf[0]  = 0x00 ; 
      buf[1] = 0x06 ;  // Calls Reset
      I2C_Write(&buf, 2) ;
+     buf[0]  = 0x00 ; 
      buf[1] = 0x08 ;  // Calls Latch
      I2C_Write(&buf, 2) ;
 }
