@@ -51,14 +51,14 @@ int pidLoop() {
      
      // PID controller expression for its output
      pid.op = pid.Kc * err + errInt / pid.Ki + pid.Kd * errDer ; 
-     DtoA(pid.op) ;
+     MCP4725_DtoA(pid.op) ;
      err_p = err ;    // ready for next loop
      usleep(dt*1e6) ;  // usleep works in microseconds
   } // PID loop end
 
 } // end PID controller  loop
 
-int main() {
+void testAtoD() {
 
 // Test AtoD 
      I2C_Open() ;  // open the bus
@@ -70,5 +70,20 @@ int main() {
      float vin ;
      vin = MCP3424_AtoD(channel) ; // read from ch0
      printf("Channel:%d Voltage:  %6.3f \n", channel, vin) ;
-    
+}
+
+void testDtoA() {
+
+// Test DtoA 
+     I2C_Open() ;  // open the bus
+     I2C_setSlave(MCP4725_I2C_ADD) ;  // Talkto A2D
+     printf("Using Device Add %x \n", MCP4725_I2C_ADD);
+     float vout ;
+     printf("Enter Volts:  ");
+     scanf("%f", &vout) ;
+     printf("Vout should be %f\n", vout);
+     MCP4725_DtoA(vout) ; // 
+}
+int main() {
+   testDtoA() ;
 }
