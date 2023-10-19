@@ -10,14 +10,15 @@
 
 void MCP4725_DtoA(float volts) {
    uint16_t  count ; // to be written to DAC register
-   uint8_t lsb, msb ;   // least and most significant bytes
+   uint8_t byte3, byte4 ;   // least and most significant bytes
 
    // Map output voltage to Digital count (12 bit long integer)
    // Split this count into two bytes for transmission
    count = (uint16_t)(volts * MCP4725_COUNTS / MCP4725_VDD) ;
-   msb = (count >> 8) & 0x000F;   // Grab 4 most significat bits of 12
-   lsb = count & 0x00FF ; // get last eight bits
-   printf("%d, hex follows   %x, %x, %x \n", count, count, msb, lsb) ;
-   uint8_t buf[] = {MCP4725_WRITE_REG,  MCP4725_WRITE_CMD, msb, lsb} ;
+   byte3 = (count & 0x0FFF) >> 4 ;   // 
+   byte4 = (count & 0x000F) << 4 ; // get last eight bits (put them in MSB of last byte)
+   printf("Write: %s,  Cmd: %s \n", byte2bin(MCP4725_WRITE_REG), byte2bin(MCP4725_WRITE_CMD)) ;
+   printf("Count = %d,  count %x, byte3: %x, byte4:%x \n", count, count, byte3, byte4) ;
+   uint8_t buf[] = {MCP4725_WRITE_REG,  MCP4725_WRITE_CMD, byte3, byte4} ;
    I2C_Write(&buf[0], 4) ;
 } // end D2A
