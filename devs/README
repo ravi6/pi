@@ -1,1 +1,12 @@
 ads1115 A/D is not used in our project
+DtoA works ... well ... 
+    The trick is to allow some time after
+sending sending the device code and its address
+The slave takes time to get ready. So can't just
+bang rest of the info without giving it some time.
+Simply splitting the ioctl call is enough.
+
+I think now AtoD chip's issue also could be
+similar issue have to sort it later.
+
+

@@ -15,7 +15,6 @@
 #define MCP4725_I2C_ADD  ( (MCP4725_DEV_CODE << 3) | MCP4725_DEV_ADDR ) 
 
 #define MCP4725_WRITE_REG ( MCP4725_DEV_CODE << 4 | MCP4725_DEV_ADDR << 1 )
-#define MCP4725_READ_REG ( MCP4725_WRITE_REG  | 0x01 )
 
 #define  MCP4725_WRITE_MODE (0x02)   // 3bits long 0x00 Fast, 0x02 RegOnly, 0x03 Reg&EEPROM 
 #define  MCP4725_POWER_MODE (0x00)   // 2bits long, 0x00 Normal, 0x01 ShutDown 
@@ -26,5 +25,6 @@
 #define MCP4725_COUNTS 4096  // 12 bit conversion
 
 void MCP4725_DtoA(float volts) ;
+void MCP4725_reset() ;
 #endif
 

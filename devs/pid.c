@@ -78,6 +78,7 @@ void testDtoA() {
      I2C_Open() ;  // open the bus
      I2C_setSlave(MCP4725_I2C_ADD) ;  // Talkto A2D
      printf("Using MCP4725 Device Add %x \n", MCP4725_I2C_ADD);
+     MCP4725_reset() ;
      float vout ;
      printf("Enter Volts:  ");
      scanf("%f", &vout) ;
