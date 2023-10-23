@@ -70,6 +70,11 @@ void testAtoD() {
      float vin ;
      vin = MCP3424_AtoD(channel) ; // read from ch0
      printf("Channel:%d Voltage:  %6.3f \n", channel, vin) ;
+     float bar ;
+     float VDD ;
+     VDD = 5.2 ;
+     bar = ( ( vin  / 0.196 ) - 0.1 * VDD) / ( 0.8 * VDD);
+     printf("Pressure in Bar : %f \n ", bar) ;
 }
 
 void testDtoA() {
@@ -110,6 +115,6 @@ int testAll() {
 }
 int main(){
  //  testDtoA() ;
-  // testAtoD() ;
-     testAll() ;
+   testAtoD() ;
+ //    testAll() ;
 }
