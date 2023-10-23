@@ -94,12 +94,11 @@ int testAll() {
      printf("Using MCP3424 Device Add %x \n", MCP3424_I2C_ADD);
      MCP3424_reset() ;
 
-     float x[5] = {0.111, 0.222, 0.333, 0.444, 0.555} ;
+     float x[6] = {0.111, 0.222, 0.333, 0.444, 0.555, 5.0} ;
      float vout ;
-     for (int j=0 ; j < 5 ; j++) {
+     for (int j=0 ; j < 6 ; j++) {
        I2C_setSlave(MCP4725_I2C_ADD) ;  // Talkto D2A
        vout = x[j] ;
-       usleep(2e6) ;
        I2C_setSlave(MCP4725_I2C_ADD) ;  
        MCP4725_DtoA(vout) ; // 
        int channel = 3 ;
