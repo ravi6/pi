@@ -21,42 +21,95 @@ struct PID {
 } pid ;
 
 float getSetPt() { // let us use another anlog signal for this 
-   return ( MCP3424_AtoD(1) ) ;    // using Ch1 for this 
+   //return ( MCP3424_AtoD(1) ) ;    // using Ch1 for this 
+   // Fixed set point for now
+   float setpt ;
+   setpt = 0.5 ;   //  pressure in bar  
+   return (setpt);
 } // end getSetPt
 
-int pidLoop() {
+float getP() {
+   float v, vmin, vmax ;
+   float p, pmin, pmax ; // pressure in bar (abs)
+/*
+   vmin = 0.5/2 ;
+   vmax = 4.5/2 ;
+   pmin = 0 ;
+   pmax = 1 ; 
+   I2C_setSlave(MCP3424_I2C_ADD) ;  // Talkto A2D
+   v = MCP3424_AtoD(3) * 2   ;  
+*/
+   I2C_setSlave(MCP3424_I2C_ADD) ;  // Talkto A2D
+   v = MCP3424_AtoD(3)    ;  
+   p = pmin  + (v - vmin) * (pmax - pmin) / (vmax - vmin) ;  
+     float VDD ;
+     VDD = 5.2 ;
+     p = ( ( v  / 0.196 ) - 0.1 * VDD) / ( 0.8 * VDD);
+}
+
+void setFlow (float f) {
+   float fmin, fmax ; // flow in lpm
+   float v, vmin, vmax ; 
+   vmin = 0 ;
+   vmax = 5 ;
+   fmin = 0 ;
+   fmax = 100 ; 
+   v = vmin  + (f - fmin) * (vmax - vmin) / (fmax - fmin) ;  
+   I2C_setSlave(MCP4725_I2C_ADD) ;  // Talkto D2A
+   MCP4725_DtoA(v) ;
+}
+
+int pidLoop(float sp, float kc, float ki, float kd) {
 
   float err, err_p  ;   // (SP - MV)  in the current and last time step
   float errInt ;  // Integral of Error w.r.t time
   float errIntMax ; // Inegral saturation limit
   float errDer ;  // Time derivative of error
 
-  errIntMax = pid.opMax / pid.Ki ;  // A reasonable value
+  const float  dt = 100e-3   ;   // time interval (s)
+  pid.opMin = 0 ;    //flow
+  pid.opMax = 100 ;
+  pid.mvMin = 0 ;   // pressure
+  pid.mvMax = 1 ;
+  pid.Kc =  kc *  (pid.opMax - pid.opMin) / (pid.mvMax - pid.mvMin) ;
+  pid.Ki = ki ;
+  pid.Kd = kd ;
+
+  FILE* fd ;
  
-  const int  dt = 100e-4   ;   // time interval (s)
-   
   I2C_Open() ;  // open the bus
-  I2C_setSlave(MCP3424_I2C_ADD) ;  // Talkto A2D
 
   errInt = 0 ;
-  err_p =  getSetPt() - MCP3424_AtoD(0)  ;  // previous error
+  //err_p =  getSetPt() - getP()  ;  // previous error
+  err_p =  sp - getP()  ;  // previous error
 
   while(1) {
-     pid.mv = MCP3424_AtoD(0) ;
-     pid.sp = getSetPt() ;
+  fd = fopen("junk", "a") ;
+     pid.mv = getP() ;
+     pid.sp = sp ;   //getSetPt() ;
      err = pid.sp - pid.mv ;
      errDer = (err - err_p) / dt ;
      errInt = errInt + (err + err_p) * 0.5 * dt ;
-     if (errInt >= errIntMax) errInt = errIntMax ; // Stop integral windup 
      
      // PID controller expression for its output
      pid.op = pid.Kc * err + errInt / pid.Ki + pid.Kd * errDer ; 
-     MCP4725_DtoA(pid.op) ;
+     // Stop Integral windup
+     if (pid.op > pid.opMax) 
+         pid.op = pid.opMax ;
+     else if (pid.op < 0)
+         pid.op = 0 ;
+     //printf("mv = %f err= %f op= %f\n", pid.mv, err, pid.op); 
+     //printf("errInt = %f err_p= %f \n", errInt, err_p); 
+     fprintf(fd, "%f  %f %f \n", pid.sp, pid.mv, pid.op) ;
+     
+     setFlow(pid.op) ;
      err_p = err ;    // ready for next loop
      usleep(dt*1e6) ;  // usleep works in microseconds
+     fclose(fd);
   } // PID loop end
 
 } // end PID controller  loop
+
 
 void testAtoD() {
 
@@ -114,7 +167,13 @@ int testAll() {
     }
 }
 int main(){
- //  testDtoA() ;
-   testAtoD() ;
+  float sp, kc, ki, kd ;
+   sp = 0.5 ;
+   kc = 1.6 ;
+   ki = 0.1 ;
+   kd = 0 ;    
+//   testDtoA() ;
+//   testAtoD() ;
  //    testAll() ;
+    pidLoop(sp, kc, ki, kd) ;
 }

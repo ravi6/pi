@@ -31,23 +31,25 @@ float MCP3424_AtoD(uint8_t ch) {
            | (MCP3424_DR << 2) | MCP3424_PGA ;   // Config Byte
   // Start Conversion
 
-  printf("Start Conversion\n") ;
+//  printf("Start Conversion\n") ;
   buf[0] = MCP3424_WRITE_REG ;     // Write Command byte
   buf[1] = CONFIG_BYTE ; 
-  showBuffer(&buf[0], 1) ;
-  showBuffer(&buf[1], 1) ;
+//  showBuffer(&buf[0], 1) ;
+//  showBuffer(&buf[1], 1) ;
           
+/* Debug 
   printf("Configuration sent \n") ;
   MCP3424_showConfig(CONFIG_BYTE) ;
   I2C_Write(&buf[0], 1) ;  I2C_Write(&buf[1], 1) ;  
   printf("***************\n");
+*/
 
  
   // wait for conversion complete (MSBit of Config to go low)
   // first two bytes are data and third byte is config
   // when you send read request command
   // So we need to monitor the RDY bit of the third byte
-  printf("Waiting for Data \n") ;
+ // printf("Waiting for Data \n") ;
   int j ; j = 0 ;
   do {
      // Send Read Data Command 
@@ -57,7 +59,7 @@ float MCP3424_AtoD(uint8_t ch) {
            
       I2C_Write(&buf[0], 2) ;
       I2C_Read(&buf[0], 3) ;  // read response
-      showBuffer(&buf, 3) ;
+      //showBuffer(&buf, 3) ;
       j = j + 1 ;
       if (j > 100) {
            printf("Data Ready Flag Failed to Clear \n") ;
@@ -65,11 +67,14 @@ float MCP3424_AtoD(uint8_t ch) {
       }
   } while (!((buf[2] & 0x80) == 0) ); // Check RDY bit cleared in Config byte
 
+/*
   printf("Configuration in Device:\n") ;
   MCP3424_showConfig(buf[2]) ;
   printf("Inferring Data Bits\n") ;
-  volts = MCP3424_inferData(buf) ;
   printf("******END******\n");
+*/
+  volts = MCP3424_inferData(buf) ;
+
   return (volts);
 } // end AtoD
 
@@ -106,11 +111,11 @@ float MCP3424_inferData(uint8_t buf[])
   
   msb = buf[0] & mask[MCP3424_DR] ; 
   lsb = buf[1]  ; 
-  printf("msb lsb %x   %x \n", msb, lsb) ;
+  // printf("msb lsb %x   %x \n", msb, lsb) ;
   count = (msb << 8) | lsb  ;
 
   volts =  count * VPS ;
-  printf("Count  %x    %d   volts = %6.3f \n ", count, count, volts) ;
+//  printf("Count  %x    %d   volts = %6.3f \n ", count, count, volts) ;
   return (volts) ;
 }
 
