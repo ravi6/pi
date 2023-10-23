@@ -63,9 +63,9 @@ void testAtoD() {
 // Test AtoD 
      I2C_Open() ;  // open the bus
      I2C_setSlave(MCP3424_I2C_ADD) ;  // Talkto A2D
+     printf("Using Device Add %x \n", MCP3424_I2C_ADD);
      MCP3424_reset() ;
      int channel = 3 ;
-     printf("Using Device Add %x \n", MCP3424_I2C_ADD);
      printf("Read Channel %d\n", channel) ;
      float vin ;
      vin = MCP3424_AtoD(channel) ; // read from ch0
@@ -73,18 +73,44 @@ void testAtoD() {
 }
 
 void testDtoA() {
-
 // Test DtoA 
      I2C_Open() ;  // open the bus
      I2C_setSlave(MCP4725_I2C_ADD) ;  // Talkto A2D
      printf("Using MCP4725 Device Add %x \n", MCP4725_I2C_ADD);
-     MCP4725_reset() ;
+ //    MCP4725_reset() ;
      float vout ;
      printf("Enter Volts:  ");
      scanf("%f", &vout) ;
      printf("Vout should be %f\n", vout);
      MCP4725_DtoA(vout) ; // 
 }
-int main() {
-   testDtoA() ;
+int testAll() {
+     I2C_Open() ;  // open the bus
+     I2C_setSlave(MCP4725_I2C_ADD) ;  // Talkto D2A
+     printf("Using MCP4725 Device Add %x \n", MCP4725_I2C_ADD);
+     MCP4725_reset() ;
+
+     I2C_setSlave(MCP3424_I2C_ADD) ;  // Talkto A2D
+     printf("Using MCP3424 Device Add %x \n", MCP3424_I2C_ADD);
+     MCP3424_reset() ;
+
+     float x[5] = {0.111, 0.222, 0.333, 0.444, 0.555} ;
+     float vout ;
+     for (int j=0 ; j < 5 ; j++) {
+       I2C_setSlave(MCP4725_I2C_ADD) ;  // Talkto D2A
+       vout = x[j] ;
+       usleep(2e6) ;
+       I2C_setSlave(MCP4725_I2C_ADD) ;  
+       MCP4725_DtoA(vout) ; // 
+       int channel = 3 ;
+       float vin ;
+       I2C_setSlave(MCP3424_I2C_ADD) ;  // Talkto A2D
+       vin = MCP3424_AtoD(channel) ; // read from ch0
+       printf("Channel:%d Voltage:  %6.3f  %6.3f \n",  channel, vin, vout) ;
+    }
+}
+int main(){
+ //  testDtoA() ;
+  // testAtoD() ;
+     testAll() ;
 }

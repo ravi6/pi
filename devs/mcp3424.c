@@ -10,7 +10,7 @@ void MCP3424_reset() {
      uint8_t buf[2];  // buffer to send or receive data on bus
      buf[0]  = 0x00 ; 
      buf[1] = 0x06 ;  // Calls Reset
-     I2C_Write(&buf, 2) ;
+     I2C_Write(&buf, 2) ; 
      buf[0]  = 0x00 ; 
      buf[1] = 0x08 ;  // Calls Latch
      I2C_Write(&buf, 2) ;
@@ -34,11 +34,12 @@ float MCP3424_AtoD(uint8_t ch) {
   printf("Start Conversion\n") ;
   buf[0] = MCP3424_WRITE_REG ;     // Write Command byte
   buf[1] = CONFIG_BYTE ; 
-  showBuffer(&buf, 2) ;
+  showBuffer(&buf[0], 1) ;
+  showBuffer(&buf[1], 1) ;
           
   printf("Configuration sent \n") ;
   MCP3424_showConfig(CONFIG_BYTE) ;
-  I2C_Write(&buf, 2) ;  
+  I2C_Write(&buf[0], 1) ;  I2C_Write(&buf[1], 1) ;  
   printf("***************\n");
 
  
@@ -58,7 +59,7 @@ float MCP3424_AtoD(uint8_t ch) {
       I2C_Read(&buf[0], 3) ;  // read response
       showBuffer(&buf, 3) ;
       j = j + 1 ;
-      if (j > 10) {
+      if (j > 100) {
            printf("Data Ready Flag Failed to Clear \n") ;
            break ;
       }

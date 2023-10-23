@@ -21,7 +21,7 @@
 
 #define  MCP4725_WRITE_CMD ( MCP4725_WRITE_MODE << 5 | MCP4725_POWER_MODE << 1 )
 
-#define MCP4725_VDD  5.0   // Chip VDD voltage 
+#define MCP4725_VDD  5.2   // Chip VDD voltage 
 #define MCP4725_COUNTS 4096  // 12 bit conversion
 
 void MCP4725_DtoA(float volts) ;

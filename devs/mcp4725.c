@@ -21,6 +21,7 @@ void MCP4725_DtoA(float volts) {
    buf[3] = (count & 0x000F) << 4 ; // get 3-0 bit positions of count an place them in MSB  
    printf("Write: %s,  Cmd: %s \n", byte2bin(buf[0]), byte2bin(buf[1])) ;
    printf("Count = %d,  count %x, byte3: %x, byte4:%x \n", count, count, buf[2], buf[3]) ;
+   // Breaking up writes seems to work (must be timing issue)
    I2C_Write(&buf[0], 1) ;
    I2C_Write(&buf[1], 3) ;
 } // end D2A

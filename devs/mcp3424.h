@@ -38,8 +38,8 @@
 #define MCP3424_I2C_ADD  ( (MCP3424_DEV_CODE << 3) | MCP3424_DEV_ADDR ) 
 
 #define MCP3424_OS          1     // Start Conversion (in continuous  Mode)
-#define MCP3424_MODE        0     // 1 Continuous , 0 One Shot 
-#define MCP3424_PGA         0     // Programmable Gain (gain=2)
+#define MCP3424_MODE        1     // 1 Continuous , 0 One Shot 
+#define MCP3424_PGA         1     // Programmable Gain (gain=2)
 #define MCP3424_DR          1     // 60 SPS (sample rates)
                                   // 14 bit resolution
 
