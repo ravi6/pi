@@ -9,4 +9,17 @@ Simply splitting the ioctl call is enough.
 I think now AtoD chip's issue also could be
 similar issue have to sort it later.
 
+9th Nov
+    Pressure control function is workng.
+Flow control valve is not quite adequate to cover
+higher pressures (> 0.6bar) with vacuum pump full chat.
+Pset   Flow
+09th Nov
+    Pressure control function is workng.
+Flow control valve is not quite adequate to cover
+higher pressures (> 0.6bar) with vacuum pump full chat.
+Pset   Flow
+0.3     14.5
+0.5     24.5
+0.6     29.5
 

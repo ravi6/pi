@@ -75,7 +75,6 @@ int pidLoop(float sp, float kc, float ki, float kd) {
   pid.Ki = ki ;
   pid.Kd = kd ;
 
-  FILE* fd ;
  
   I2C_Open() ;  // open the bus
 
@@ -84,7 +83,6 @@ int pidLoop(float sp, float kc, float ki, float kd) {
   err_p =  sp - getP()  ;  // previous error
 
   while(1) {
-  fd = fopen("junk", "a") ;
      pid.mv = getP() ;
      pid.sp = sp ;   //getSetPt() ;
      err = pid.sp - pid.mv ;
@@ -100,12 +98,11 @@ int pidLoop(float sp, float kc, float ki, float kd) {
          pid.op = 0 ;
      //printf("mv = %f err= %f op= %f\n", pid.mv, err, pid.op); 
      //printf("errInt = %f err_p= %f \n", errInt, err_p); 
-     fprintf(fd, "%f  %f %f \n", pid.sp, pid.mv, pid.op) ;
+     printf("%f  %f %f \n", pid.sp, pid.mv, pid.op) ;
      
      setFlow(pid.op) ;
      err_p = err ;    // ready for next loop
      usleep(dt*1e6) ;  // usleep works in microseconds
-     fclose(fd);
   } // PID loop end
 
 } // end PID controller  loop
@@ -168,7 +165,7 @@ int testAll() {
 }
 int main(){
   float sp, kc, ki, kd ;
-   sp = 0.5 ;
+   sp = 0.8 ;
    kc = 1.6 ;
    ki = 0.1 ;
    kd = 0 ;    
