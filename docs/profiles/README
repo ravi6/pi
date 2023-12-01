@@ -1,0 +1,6 @@
+All profile files should be
+simple x y data with space separated
+Should not have blank lines or comment lines
+
+First column is time  in  (minutes)
+Second column   p  in   (mbar)

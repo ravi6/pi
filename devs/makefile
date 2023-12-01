@@ -4,7 +4,7 @@
 CC = gcc
 CFLAGS = -Wall -O -c -g -Wno-implicit-function-declaration
 
-SRC = util.c i2c.c mcp3424.c mcp4725.c 
+SRC = rtable.c util.c i2c.c mcp3424.c mcp4725.c 
 INC = $(SRC:.c=.h) common.h 
 OBJ = $(SRC:.c=.o)
 
