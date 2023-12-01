@@ -88,7 +88,13 @@ int pidLoop(float sp, float kc, float ki, float kd) {
      err = pid.sp - pid.mv ;
      errDer = (err - err_p) / dt ;
      errInt = errInt + (err + err_p) * 0.5 * dt ;
-     
+
+     //Stop Integral Windup
+     if (errInt>pid.opMax*pid.Ki)  		  
+        errInt=pid.opMax*pid.Ki;
+     else if (errInt<pid.opMin*pid.Ki)
+        errInt=pid.opMin*pid.Ki;
+       
      // PID controller expression for its output
      pid.op = pid.Kc * err + errInt / pid.Ki + pid.Kd * errDer ; 
      // Stop Integral windup
