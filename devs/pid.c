@@ -7,6 +7,7 @@
 #include "mcp3424.h"
 #include "mcp4725.h"
 #include <sys/file.h>
+#include <math.h>
 
 struct PID {
   float mv     ; // Measured Value 
@@ -22,6 +23,9 @@ struct PID {
   int   cmd    ; // 1 start, 0 stop
   int   state  ; // 1 running, 0 stopped
 } pid ;
+
+const float  dt = 100e-3   ;   // time interval (s)
+int ticks ;
 
 float getP() {
    float v, vmin, vmax ;
@@ -40,6 +44,9 @@ float getP() {
      float VDD ;
      VDD = 5.2 ;
      p = ( ( v  / 0.196 ) - 0.1 * VDD) / ( 0.8 * VDD);
+
+     p = 0.9 *  pow(pid.op/pid.opMax, 1)  * (1 - exp(-ticks*dt/10)) ; 
+     return(p) ;
 }
 
 void setFlow (float f) {
@@ -64,9 +71,9 @@ back:
    if ((fp == NULL)  && !wait) return ;
    else if ((fp == NULL) && wait) goto back  ;
 
-   float kc, ki, kd ;
+   float kc, ki, kd, sp ;
    int cmd ;
-   int n = fscanf(fp, "%d %f %f %f", &cmd, &kc, &ki, &kd); 
+   int n = fscanf(fp, "%d %f %f %f %f", &cmd, &kc, &ki, &kd, &sp); 
    fclose(fp) ;
 
    pid.opMin = 0 ;    //flow
@@ -77,6 +84,7 @@ back:
    pid.Ki = ki ;
    pid.Kd = kd ;
    pid.cmd = cmd ;
+   pid.sp = sp ;
 } // end readParams
 
 int pidLoop() {
@@ -86,8 +94,7 @@ int pidLoop() {
   float errIntMax ; // Inegral saturation limit
   float errDer ;  // Time derivative of error
 
-  const float  dt = 100e-3   ;   // time interval (s)
-  int ticks = 0 ;
+  ticks = 0 ;
  
   // I2C_Open() ;  // open the bus
 
@@ -125,9 +132,11 @@ int pidLoop() {
      setFlow(pid.op) ;
 
      
-     FILE *fp = fopen("pidData","rw") ;
+     FILE *fp = fopen("pidData","a+") ;
      if (fp != NULL) {
-       printf("%d %f  %f %f \n", ticks, pid.sp, pid.mv, pid.op) ;
+       fprintf(fp, "%d %f %f %f  %f %f %f \n", 
+	   ticks, pid.sp, pid.mv, pid.op,
+	   pid.Kc, pid.Ki, pid.Kd) ;
        fclose(fp) ;
      }
 
