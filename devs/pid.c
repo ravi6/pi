@@ -34,8 +34,8 @@ float getP() {
    I2C_setSlave(MCP3424_I2C_ADD) ;  // Talkto A2D
    v = MCP3424_AtoD(3) * 2   ;  
 */
-   I2C_setSlave(MCP3424_I2C_ADD) ;  // Talkto A2D
-   v = MCP3424_AtoD(3)    ;  
+//   I2C_setSlave(MCP3424_I2C_ADD) ;  // Talkto A2D
+   v=2.2 ; //v = MCP3424_AtoD(3)    ;  
    p = pmin  + (v - vmin) * (pmax - pmin) / (vmax - vmin) ;  
      float VDD ;
      VDD = 5.2 ;
@@ -50,8 +50,8 @@ void setFlow (float f) {
    fmin = 0 ;
    fmax = 100 ; 
    v = vmin  + (f - fmin) * (vmax - vmin) / (fmax - fmin) ;  
-   I2C_setSlave(MCP4725_I2C_ADD) ;  // Talkto D2A
-   MCP4725_DtoA(v) ;
+ //  I2C_setSlave(MCP4725_I2C_ADD) ;  // Talkto D2A
+  // MCP4725_DtoA(v) ;
 }
 
 void readParams(int wait) {
@@ -89,7 +89,7 @@ int pidLoop() {
   const float  dt = 100e-3   ;   // time interval (s)
   int ticks = 0 ;
  
-  I2C_Open() ;  // open the bus
+  // I2C_Open() ;  // open the bus
 
   // Keep monitoring params until pid is started
   do { readParams(1) ; // load PID params from params file
