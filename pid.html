@@ -1,38 +1,44 @@
 <html>
-<!- A minimalist web GUI to control Onion PWM-->
-<!- Author: Ravi Saripalli ,  29th Aug. 2021M-->
+<!- A minimal web GUI to control chamber pressure-->
+<!- Author: Ravi Saripalli ,  -->
 <style>
-@import url(https://fonts.googleapis.com/css?family=Dosis:700);
+<!-@import url(https://fonts.googleapis.com/css?family=Dosis:700); -->
 body {
   font-family: "Dosis", Helvetica, Arial, sans-serif; 
   background: #ecf0f1;
   color: #34495e;
-  padding-top: 40px;
+  padding-top: 20px;
   text-shadow: white 1px 1px 1px;
 }
+
 #mydiv {
   border-radius: 25px;
   background: #73AD21;
   padding: 20px;
-  width: 600px;
+  width: 300px;
+  float: right;
 }
+
 .value {
   padding-left: 50px;
   font-weight: bold;
-  font-size: 60px;
+  font-size: 30px;
   text-shadow: white 2px 2px 2px;
 }
+
 .label {
         font-size: 30px;
 	font-color: green;
     }
+
 input[type="range"] {
   -webkit-appearance: none;
   background-color: #bdc3c7;
-  width: 600px;
+  width: 100%;
   height: 15px;
   border-radius: 5px;
 }
+
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   background-color: #e74c3c;
@@ -43,10 +49,12 @@ input[type="range"]::-webkit-slider-thumb {
   cursor: pointer;
   transition: .3s ease-in-out;
 }
+
 input[type="range"]::-webkit-slider-thumb:hover {
     background-color: white;
     border: 2px solid #e74c3c;
 }
+
 input[type="range"]::-webkit-slider-thumb:active {
     transform: scale(1.1);
 }
@@ -69,30 +77,59 @@ input[type="range"]::-webkit-slider-thumb:active {
   box-shadow: 0 5px #666;
   transform: translateY(4px);
 }
+
+
+#plt { width: 70% ;
+      border: none;
+      border-radius: 15px;
+      box-shadow: 3px 3px grey;
+ }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <body>
-  <h2>Pressure Controller Settings</h2>
-  <div id=mydiv>
 
-  <div class=label>Kc<span class=value id=Kc>1</span> </div>
-   <input  type="range" min="0" max="10" step="0.1" value="1"
-          onChange='getElementById("Kc").innerHTML=this.value ; '>
+  <h2>Vacuum Chamber Pressure Control</h2>
+  <!img id=plt src="pid.png"> ;
 
-  <div class=label>Ki<span class=value id=Ki>50</span> </div>
-   <input  type="range" min="10" max="1000" step="1" value="350"
-          onChange='getElementById("Ki").innerHTML=this.value ; '>
-   <div>
+<div id=mydiv>
+    <h1>PID Controller parameters</h1>
+    <div class=label>Kc<span class=value id=Kc>1</span> </div>
+	 <input  type="range" min="0" max="10" step="0.1" value="1"
+	    onChange='getElementById("Kc").innerHTML=this.value ; '>
 
-  <div class=label>Kd<span class=value id=Kd>50</span> </div>
-   <input  type="range" min="0" max="10" step="1" value="0"
-          onChange='getElementById("Kd").innerHTML=this.value ; '>
-   <div>
+    <div class=label>Ki<span class=value id=Ki>500</span> </div>
+	 <input  type="range" min="10" max="1000" step="1" value="350"
+	    onChange='getElementById("Ki").innerHTML=this.value ; '>
 
-  <button class=button id=btnStart >start</button>
+    <div class=label>Kd<span class=value id=Kd>0</span> </div>
+	 <input  type="range" min="0" max="10" step="1" value="0"
+	   onChange='getElementById("Kd").innerHTML=this.value ; '>
+
+  <div id=btnDiv>
+     <button class=button id=btnStart >start</button>
+     <button class=button id=btnData onClick="pid(2);">data</button>
    </div>
-  </div>
+
+</div>
 <script>
+  var data ;
+  function pid(cmd) { 
+     var sp = 0.4  ;
+     var Kc = $("#Kc").text()  ;
+     var Ki = $("#Ki").text()  ;
+     var Kd = $("#Kd").text()  ;
+     var data = {cmd: cmd , sp: sp,  Kc: Kc, Ki: Ki, Kd: Kd} ; // Json data 
+        $.ajax({
+           method: "POST",
+           url: "pid.php",
+           data: (data),
+           success: function(response) {
+		          console.log(response) ;
+	                  console.log(cmd);
+                    }
+             });  //end ajax
+     } // end pid
+
   var btnStart = document.getElementById("btnStart") ;
   btnStart.onclick = (function() {
     if ((btnStart.innerHTML).localeCompare("stop")){ 
@@ -103,22 +140,11 @@ input[type="range"]::-webkit-slider-thumb:active {
 	     btnStart.innerHTML = "start" ;
            }
     });
-
-  function pid(cmd) { 
-     $(btnStart).disable ;
-     var Kc = $("#Kc").text()  ;
-     var Ki = $("#Ki").text()  ;
-     var Kd = $("#Kd").text()  ;
-     var data = {cmd: cmd , Kc:  Kc, Ki: Ki, Kd: Kd} ; // Json data 
-        $.ajax({
-           method: "POST",
-           url: "pid.php",
-           data: (data),
-           success: function(response) {
-		          console.log(response) ;
-                    }
-             });  //end ajax
-     } // end pid
+  function updatePlt() {
+   var plt = document.getElementById("plt") ;
+   plt.src = "http://localhost:8000/pid.png?" + new Date().getTime();
+  }
+//  setTimeout(updatePlt, 10000); // every second
 </script>
 </body>
 </html>

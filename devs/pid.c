@@ -73,7 +73,7 @@ back:
 
    float kc, ki, kd, sp ;
    int cmd ;
-   int n = fscanf(fp, "%d %f %f %f %f", &cmd, &kc, &ki, &kd, &sp); 
+   int n = fscanf(fp, "%d %f %f %f %f", &cmd, &sp, &kc, &ki, &kd); 
    fclose(fp) ;
 
    pid.opMin = 0 ;    //flow
