@@ -2,9 +2,9 @@
 <!- A minimal web GUI to control chamber pressure-->
 <!- Author: Ravi Saripalli ,  -->
 <style>
-<!-import url(https://fonts.googleapis.com/css?family=Dosis:700); -->
+<import url(https://fonts.googleapis.com/css?family=Dosis:700); >
 body {
-  font-family:  Helvetica, Arial, sans-serif; 
+  font-family:  Dosis, Helvetica, Arial, sans-serif; 
   background: #ecf0f1;
   color: #34495e;
   padding-top: 20px;
@@ -89,7 +89,7 @@ input[type="range"]::-webkit-slider-thumb:active {
 <body>
 
   <h2>Vacuum Chamber Pressure Control</h2>
-  <!img id=plt src="pid.png"> ;
+  <img id=plt src="pid.png"> ;
 
 <div id=mydiv>
     <h1>PID Controller parameters</h1>
@@ -144,7 +144,7 @@ input[type="range"]::-webkit-slider-thumb:active {
    var plt = document.getElementById("plt") ;
    plt.src = "http://localhost:8000/pid.png?" + new Date().getTime();
   }
-//  setTimeout(updatePlt, 10000); // every second
+  setTimeout(updatePlt, 2000); // every second
 </script>
 </body>
 </html>

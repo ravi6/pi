@@ -10,12 +10,8 @@ $Kc = $_POST['Kc'];
 $Ki = $_POST['Ki'];
 $Kd = $_POST['Kd'];
 $shcmd =  "/home/ravi/learn/pi/pid" ;
-$cmd=1 ;
 if ($cmd == 1) { 
-echo $cmd ;
  $out =  shell_exec($shcmd . " 2>&1");
-echo "DONE" ;
- $out = "hello" ; 
  echo "pid control Started : Shell RC = " . $out ;  // return status
 } else if ($cmd == 0){  // stop pid control
     $msg = $cmd ." ". $sp  ." ". $Kc ." ". $Ki ." ". $Kd  ;
@@ -29,7 +25,7 @@ echo "DONE" ;
 } else if($cmd == 2) {  // generate PID plot
     $shcmd = "gnuplot pidPlot" ;
     $rc = shell_exec($shcmd . " 2>&1"); 
-    echo "plot updated" ;
+    echo "plot updated:  " . $rc ;
 } else
     echo "Don't understand command code " . $cmd ;
 ?>  
