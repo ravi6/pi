@@ -1,15 +1,20 @@
 <?php
 // Author: Ravi Saripalli 
 // Both of these will be null when trying to setup PWM pin
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 $cmd = $_POST['cmd'];
 $sp = $_POST['sp'];
 $Kc = $_POST['Kc'];
 $Ki = $_POST['Ki'];
 $Kd = $_POST['Kd'];
 $shcmd =  "/home/ravi/learn/pi/pid" ;
-
+$cmd=1 ;
 if ($cmd == 1) { 
+echo $cmd ;
  $out =  shell_exec($shcmd . " 2>&1");
+echo "DONE" ;
  $out = "hello" ; 
  echo "pid control Started : Shell RC = " . $out ;  // return status
 } else if ($cmd == 0){  // stop pid control

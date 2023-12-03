@@ -98,11 +98,8 @@ int pidLoop() {
  
   // I2C_Open() ;  // open the bus
 
-  // Keep monitoring params until pid is started
-  do { readParams(1) ; // load PID params from params file
+  readParams(1) ; // load PID params from params file
 		     // wait for ever for the file to be ready
-  } while (pid.cmd == 0) ;
-
   errInt = 0 ;
   err_p =  pid.sp - getP()  ;  // previous error
   
@@ -113,24 +110,26 @@ int pidLoop() {
      err = pid.sp - pid.mv ;
      errDer = (err - err_p) / dt ;
      errInt = errInt + (err + err_p) * 0.5 * dt ;
-
-     //Stop Integral Windup
-     if (errInt>pid.opMax*pid.Ki)  		  
-        errInt=pid.opMax*pid.Ki;
-     else if (errInt<pid.opMin*pid.Ki)
-        errInt=pid.opMin*pid.Ki;
-       
+     float Integ ; // integral action term
+     Integ = errInt / pid.Ki ;
+     
      // PID controller expression for its output
-     pid.op = pid.Kc * err + errInt / pid.Ki + pid.Kd * errDer ; 
-     // Stop Integral windup
-     if (pid.op > pid.opMax) 
+     pid.op = pid.Kc * err + Integ + pid.Kd * errDer ; 
+     
+     // Adjust integral amount by the excess/deficit 
+     // of the output from its limiting values 
+     // and then Clip final pid output to limits
+     if (pid.op > pid.opMax) {
+         Integ = Integ - (pid.op - pid.opMax)  ; // reduce heap
          pid.op = pid.opMax ;
-     else if (pid.op < 0)
-         pid.op = 0 ;
+     }
+     else if (pid.op < pid.opMin){
+         Integ = Integ + (pid.opMin - pid.op) ;  // add to heap
+         pid.op = pid.opMin ;
+     }
      //printf("mv = %f err= %f op= %f\n", pid.mv, err, pid.op); 
      //printf("errInt = %f err_p= %f \n", errInt, err_p); 
      setFlow(pid.op) ;
-
      
      FILE *fp = fopen("pidData","a+") ;
      if (fp != NULL) {
