@@ -8,6 +8,7 @@
 #include "mcp4725.h"
 #include <sys/file.h>
 #include <math.h>
+#include <unistd.h>  // access function
 
 struct PID {
   float mv     ; // Measured Value 
@@ -21,7 +22,6 @@ struct PID {
   float opMin  ;
   float opMax  ;  // Output (flow setpoint) limits
   int   cmd    ; // 1 start, 0 stop
-  int   state  ; // 1 running, 0 stopped
 } pid ;
 
 const float  dt = 100e-3   ;   // time interval (s)
@@ -103,9 +103,13 @@ int pidLoop() {
   errInt = 0 ;
   err_p =  pid.sp - getP()  ;  // previous error
   
-  while(pid.cmd == 1) {
-    if ((ticks%100) == 0)
-     readParams(0) ;  // don't wait if you can't get access to file
+
+// keep running as longas run exists
+  while(access("run", F_OK) == 0) {
+    // Lookup PID parameters every 3 ticks 
+    if ((ticks % 3) == 0)
+     readParams(0) ;  
+
      pid.mv = getP() ;
      err = pid.sp - pid.mv ;
      errDer = (err - err_p) / dt ;
@@ -131,12 +135,14 @@ int pidLoop() {
      //printf("errInt = %f err_p= %f \n", errInt, err_p); 
      setFlow(pid.op) ;
      
-     FILE *fp = fopen("pidData","a+") ;
-     if (fp != NULL) {
-       fprintf(fp, "%d %f %f %f  %f %f %f \n", 
-	   ticks, pid.sp, pid.mv, pid.op,
-	   pid.Kc, pid.Ki, pid.Kd) ;
-       fclose(fp) ;
+     if ( (ticks%10) == 0) { // coarsen the plotting
+       FILE *fp = fopen("pidData","a") ;
+       if (fp != NULL) {
+	 fprintf(fp, "%d %f %f %f  %f %f %f \n", 
+	     ticks, pid.sp, pid.mv, pid.op,
+	     pid.Kc, pid.Ki, pid.Kd) ;
+	 fclose(fp) ;
+       }
      }
 
      err_p = err ;    // ready for next loop
@@ -144,11 +150,13 @@ int pidLoop() {
      ticks = ticks + 1 ;
   } // PID loop end
 
-  pid.state = 0 ;
 } // end PID controller  loop
 
 int main(){
   float sp, kc, ki, kd ;
  //  sp = 0.8 ; kc = 1.6 ; ki = 0.1 ; kd = 0 ;    
   pidLoop(sp, kc, ki, kd) ;
+  remove("run") ;  // remove run flag
+  
+  return(0) ;
 }

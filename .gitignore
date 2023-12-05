@@ -2,3 +2,5 @@
 *.a
 pid
 libdev.a
+pid.png
+jq*

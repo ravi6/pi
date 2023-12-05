@@ -15,7 +15,7 @@ set grid
 
 set title "Vacume Chamber Pressure Controller"
 dt = 100e-3   # tick interval
-plot 'pidData' using ($1*dt):3  axis x1y1 title "mv", \
-      '' using ($1*dt):2 axis x1y1 title "sp", \
-      '' using ($1*dt):4 axis x1y2 title "op"
+plot 'pidData' using ($1*dt):3 w l  axis x1y1 title "mv", \
+      '' using ($1*dt):2 w l axis  x1y1 title "sp", \
+      '' using ($1*dt):4 w l axis x1y2 title "op"
 #pause(-1)

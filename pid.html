@@ -1,6 +1,9 @@
 <html>
 <!- A minimal web GUI to control chamber pressure-->
 <!- Author: Ravi Saripalli ,  -->
+<head>
+<script src="jq.js"></script>
+</head>
 <style>
 <import url(https://fonts.googleapis.com/css?family=Dosis:700); >
 body {
@@ -94,57 +97,72 @@ input[type="range"]::-webkit-slider-thumb:active {
 <div id=mydiv>
     <h1>PID Controller parameters</h1>
     <div class=label>Kc<span class=value id=Kc>1</span> </div>
-	 <input  type="range" min="0" max="10" step="0.1" value="1"
-	    onChange='getElementById("Kc").innerHTML=this.value ; '>
+	 <input  type="range" min="0" max="1" step="0.02" value="0.3"
+	    onChange='getElementById("Kc").innerHTML=this.value ; ' >
 
     <div class=label>Ki<span class=value id=Ki>500</span> </div>
-	 <input  type="range" min="10" max="1000" step="1" value="350"
+	 <input  type="range" min="1" max="100" step="1" value="50"
 	    onChange='getElementById("Ki").innerHTML=this.value ; '>
 
     <div class=label>Kd<span class=value id=Kd>0</span> </div>
-	 <input  type="range" min="0" max="10" step="1" value="0"
+	 <input  type="range" min="0" max="1" step="0.02" value="0"
 	   onChange='getElementById("Kd").innerHTML=this.value ; '>
 
   <div id=btnDiv>
      <button class=button id=btnStart >start</button>
-     <button class=button id=btnData onClick="pid(2);">data</button>
    </div>
 
 </div>
 <script>
+  // note ajax is using gloabl variable data
   var data ;
+
   function pid(cmd) { 
-     var sp = 0.4  ;
-     var Kc = $("#Kc").text()  ;
-     var Ki = $("#Ki").text()  ;
-     var Kd = $("#Kd").text()  ;
-     var data = {cmd: cmd , sp: sp,  Kc: Kc, Ki: Ki, Kd: Kd} ; // Json data 
-        $.ajax({
+    if (cmd == 2) {
+       var sp = 0.4  ;
+       var Kc = $("#Kc").text()  ;
+       var Ki = $("#Ki").text()  ;
+       var Kd = $("#Kd").text()  ;
+       data = {cmd: cmd , sp: sp,  
+	       Kc: Kc, Ki: Ki, Kd: Kd} ; // Json data 
+    } else
+     data = {cmd: cmd} ;
+
+     $.ajax({
            method: "POST",
            url: "pid.php",
            data: (data),
            success: function(response) {
-		          console.log(response) ;
-	                  console.log(cmd);
+		          console.log(
+                       {data: data, 
+                        resp: response}) ;
                     }
              });  //end ajax
      } // end pid
 
   var btnStart = document.getElementById("btnStart") ;
   btnStart.onclick = (function() {
-    if ((btnStart.innerHTML).localeCompare("stop")){ 
-            pid(1) ;  // start pid control
-	    btnStart.innerHTML = "stop" ;
+   console.log(btnStart.innerHTML);
+    if (btnStart.innerHTML == "start"){ 
+             pid(1);
+	     btnStart.innerHTML = "stop" ;
     } else { 
              pid(0) ; // stop pid control
 	     btnStart.innerHTML = "start" ;
            }
     });
   function updatePlt() {
+   pid(3) ;  // Creates Plot from output Data
+   // Updates plot
    var plt = document.getElementById("plt") ;
    plt.src = "http://localhost:8000/pid.png?" + new Date().getTime();
   }
-  setTimeout(updatePlt, 2000); // every second
+  setInterval(updatePlt, 3000); // every second
+
+  // Update pidParameters
+  setInterval("pid(2)", 1000); // every second
+
+
 </script>
 </body>
 </html>
