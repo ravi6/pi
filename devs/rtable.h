@@ -6,7 +6,7 @@ struct table {
     float* y ;
 } ;
 
-float intPolate(struct table tbl, float xi) {
+float intPolate(struct table tbl, float xi) ;
 int getLineCount(FILE* fp) ;
 struct table loadTable () ;
 void testTable() ;

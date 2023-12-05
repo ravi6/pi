@@ -108,9 +108,6 @@ input[type="range"]::-webkit-slider-thumb:active {
 	 <input  type="range" min="0" max="1" step="0.02" value="0"
 	   onChange='getElementById("Kd").innerHTML=this.value ; '>
 
-    <div class=label>sp<span class=value id=sp>0.4</span> </div>
-	 <input  type="range" min="0" max="1" step="0.02" value="0.4"
-	   onChange='getElementById("sp").innerHTML=this.value ; '>
   <div id=btnDiv>
      <button class=button id=btnStart >start</button>
    </div>
@@ -122,11 +119,10 @@ input[type="range"]::-webkit-slider-thumb:active {
 
   function pid(cmd) { 
     if (cmd == 2) {
-       var sp = $("#sp").text()  ;
        var Kc = $("#Kc").text()  ;
        var Ki = $("#Ki").text()  ;
        var Kd = $("#Kd").text()  ;
-       data = {cmd: cmd , sp: sp,  
+       data = {cmd: cmd,   
 	       Kc: Kc, Ki: Ki, Kd: Kd} ; // Json data 
     } else
      data = {cmd: cmd} ;

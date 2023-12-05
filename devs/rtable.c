@@ -40,24 +40,25 @@ struct table loadTable () {
   // from given file 
   // Assume data file contains just tabled data
   // A crude data table loading without any error
-  // trapping if "data" file does not conform to the format
+  // trapping if "spData" file does not conform to the format
 
   FILE *fp;
-  fp = fopen("data","rw");
+
+  fp = fopen("spData","rw");
   if(fp == NULL) {
-     perror("Error in opening file");
+     perror("Error in opening spData file");
   }
 
   int n = getLineCount(fp) ;
   float *x = (float*)malloc(n*sizeof(float)) ;
   float *y = (float*)malloc(n*sizeof(float)) ;
-  printf("Loading Data Table\nidx,  x,  y \n") ;
+  //printf("Loading Data Table\nidx,  x,  y \n") ;
   for (int i=0 ; i < n ; i++) {
      int rc = fscanf(fp, "%f %f", &x[i], &y[i]) ;
-     printf("%d %g %g\n", i+1, x[i], y[i]) ;
+   //  printf("%d %g %g\n", i+1, x[i], y[i]) ;
   }
   fclose(fp);
-  printf("End of Data Table\n");
+  //printf("End of Data Table\n");
 
   struct table tbl ;
   tbl.n = n ; tbl.x = x ; tbl.y = y ;
