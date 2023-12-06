@@ -149,8 +149,8 @@ int pidLoop() {
      if ( (ticks%10) == 0) { // coarsen the plotting
        FILE *fp = fopen("pidData","a") ;
        if (fp != NULL) {
-	 fprintf(fp, "%d %f %f %f  %f %f %f \n", 
-	     ticks, pid.sp, pid.mv, pid.op,
+	 fprintf(fp, "%f %f %f %f  %f %f %f \n", 
+	     ticks * dt, pid.sp, pid.mv, pid.op,
 	     pid.Kc, pid.Ki, pid.Kd) ;
 	 fclose(fp) ;
        }
